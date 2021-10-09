@@ -11,7 +11,25 @@ A hosted version of this project is available at https://hook.hyra.io
 All the best!
 */
 
-const axios = require("axios");
+const Axios = require("axios").default;
+
+const axios = Axios.create({
+    headers: {
+        post: {
+            Via: "HyraWebhookProxy/1.0"
+        },
+        get: {
+            Via: "HyraWebhookProxy/1.0"
+        },
+        patch: {
+            Via: "HyraWebhookProxy/1.0"
+        },
+        delete: {
+            Via: "HyraWebhookProxy/1.0"
+        }
+    }
+})
+
 const express = require("express");
 const rateLimit = require("express-rate-limit");
 const MongoStore = require('rate-limit-mongo');
@@ -22,6 +40,8 @@ const app = express();
 
 const windowMs = 1 * 60 * 1000;
 const maxPerWindow = 30;
+
+console.log(process.env);
 
 const limiter = new rateLimit({
     store: new MongoStore({
