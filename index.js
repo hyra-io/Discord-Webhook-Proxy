@@ -6,7 +6,7 @@ Feel free to open a pull-request with any improvements
 
 If you'd like to support us, please donate at https://www.buymeacoffee.com/hyrawork
 
-A hosted version of this project is available at https://hook.hyra.io
+A hosted version of this project is available at https://hooks.hyra.io
 
 All the best!
 */
