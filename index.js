@@ -33,6 +33,7 @@ const axios = Axios.create({
 const express = require("express");
 const rateLimit = require("express-rate-limit");
 const MongoStore = require('rate-limit-mongo');
+const helmet = require("helmet");
 
 require("dotenv").config();
 
@@ -67,6 +68,7 @@ const limiter = new rateLimit({
 })
 
 app.use(express.json());
+app.use(helmet());
 
 app.get("/", (req, res) => {
     res.send("There's no documentation for this service, just replace https://discord.com with https://hooks.hyra.io to proxy your requests");
