@@ -1,4 +1,5 @@
-![Hyra](https://uploads-ssl.webflow.com/5f4e7c93c41edfe1f348daf3/5f4e82aeb6d6cf9e9eddb44e_Asset%202.png)
+![Hyra](https://raw.githubusercontent.com/hyra-io/README/main/logo_png.png#gh-light-mode-only)
+![Hyra](https://raw.githubusercontent.com/hyra-io/README/main/logo_png_white.png#gh-dark-mode-only)
 
 ![Contributors](https://shields.io/github/contributors/hyra-io/Discord-Webhook-Proxy)
 ![License](https://shields.io/github/license/hyra-io/Discord-Webhook-Proxy)
