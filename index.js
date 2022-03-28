@@ -71,7 +71,7 @@ app.use(express.json());
 app.use(helmet());
 
 app.get("/", (req, res) => {
-    res.send("There's no documentation for this service, just replace https://discord.com with https://hooks.hyra.io to proxy your requests");
+    res.status(200).send("There's no documentation for this service, just replace https://discord.com with https://hooks.hyra.io to proxy your requests");
 })
 
 // Fetch information about a webhook
