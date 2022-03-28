@@ -77,7 +77,7 @@ app.get("/", (req, res) => {
 // Fetch information about a webhook
 app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
     axios.get(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`).then(result => {
-        res.send(result.data);
+        res.status(200).send(result.data);
     }).catch(err => {
         res.status(err.response.status).send(err.response.data);
     })
@@ -87,7 +87,7 @@ app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
 app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
     console.log(req.body);
     axios.post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`, req.body).then(result => {
-        res.send(result.data);
+        res.status(200).send(result.data);
     }).catch(err => {
         res.status(err.response.status).send(err.response.data);
     })
@@ -96,7 +96,7 @@ app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
 // Edit a webhook message
 app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) => {
     axios.patch(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`, req.body).then(result => {
-        res.send(result.data);
+        res.status(200).send(result.data);
     }).catch(err => {
         res.status(err.response.status).send(err.response.data);
     })
@@ -105,7 +105,7 @@ app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =>
 // Delete a webhook message
 app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) => {
     axios.delete(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`).then(result => {
-        res.send(result.data);
+        res.status(200).send(result.data);
     }).catch(err => {
         res.status(err.response.status).send(err.response.data);
     })
@@ -114,7 +114,7 @@ app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =
 // Slack Compatible
 app.post("/api/webhooks/:id/:token/slack", limiter, (req, res) => {
     axios.post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/slack`, req.body).then(result => {
-        res.send(result.data);
+        res.status(200).send(result.data);
     }).catch(err => {
         res.status(err.response.status).send(err.response.data);
     })
@@ -123,7 +123,7 @@ app.post("/api/webhooks/:id/:token/slack", limiter, (req, res) => {
 // GitHub Compatible
 app.post("/api/webhooks/:id/:token/github", limiter, (req, res) => {
     axios.post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/github`, req.body).then(result => {
-        res.send(result.data);
+        res.status(200).send(result.data);
     }).catch(err => {
         res.status(err.response.status).send(err.response.data);
     })
