@@ -128,6 +128,11 @@ const validateRequest = (req: express.Request, res: express.Response) => {
                 code: 50006
             })
             return false;
+        } if(req.body.content && req.body.content.length > 2000) {
+            res.status(400).send({
+                message: "Content must be 2000 or fewer in length."
+            })
+            return false;
         } else if (req.body.embeds && req.body.embeds.length === 0) {
             res.status(400).send({
                 message: "Cannot send an empty message",
