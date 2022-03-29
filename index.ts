@@ -21,6 +21,7 @@ import mongoose from 'mongoose';
 import { webhooks } from './models/webhooks';
 import { requests } from './models/requests';
 import bodyParser from 'body-parser';
+import { monitoring } from './routes/monitor';
 
 const Axios = axios.create({
     headers: {
@@ -85,6 +86,8 @@ const handleResponse = async(req: express.Request, res: express.Response, result
     res.setHeader("X-Request-ID", log._id);
     res.send(result.data);
 }
+
+app.use("/monitor", monitoring);
 
 app.get("/", (req, res) => {
     webhooks.find({}).then(result => {
