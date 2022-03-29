@@ -70,11 +70,9 @@ let instance = 1;
 const roundRobinInstance = (): AxiosInstance => {
     if(instance === axiosInstances.length - 1) {
         instance = 0;
-        console.log(instance);
         return axiosInstances[instance];
     } else {
         instance++;
-        console.log(instance);
         return axiosInstances[instance - 1];
     }
 }
