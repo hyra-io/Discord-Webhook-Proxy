@@ -24,9 +24,24 @@ import bodyParser from 'body-parser';
 import { networkInterfaces } from 'os';
 import https from 'https';
 
+/*
+    To allow us to send a larger volume of requests, we need to attach multiple IP
+    addresses to our instances.
+
+    In most cases, users will have 1 local IP address attached to their machine
+
+    However, in Hyra's production environment, we have multiple IP addresses,
+    so it we need to discover the IP addresses and then 'round-robin' the load.
+
+    This is a pretty simple implementation of this. 
+
+    More IP addresses will be discovered if they are attached to the instance using
+    netplan.
+*/
 const nets = networkInterfaces();
 const addresses = [];
 
+// Discover the IP addresses
 for(const name of Object.keys(nets)) {
     for(const net of nets[name]!) {
         if(net.family === 'IPv4' && !net.internal) {
@@ -37,6 +52,7 @@ for(const name of Object.keys(nets)) {
 
 const axiosInstances: AxiosInstance[] = []
 
+// Create an axios instance for each IP address
 for(let address of addresses) {
     axiosInstances.push(axios.create({
         httpsAgent: new https.Agent({
@@ -48,6 +64,7 @@ for(let address of addresses) {
     }))
 }
 
+// Balance the load across the instances by taking it in turns
 let instance = 1;
 
 const roundRobinInstance = (): AxiosInstance => {
@@ -61,6 +78,8 @@ const roundRobinInstance = (): AxiosInstance => {
         return axiosInstances[instance - 1];
     }
 }
+
+// End of IP balancing
 
 const app = express();
 
