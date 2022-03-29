@@ -6,7 +6,7 @@
 ![Language](https://shields.io/github/languages/top/hyra-io/Discord-Webhook-Proxy)
 
 # Discord Webhook Proxy
-This is a lightweight Discord Webhook Proxy written in Node.js. This proxy takes input and proxies it through the server running the code. This code was designed to be used to send requests to the Discord webhook API from Roblox.
+This a lightweight Discord Webhook Proxy designed for Roblox written in Typescript. This proxy takes input via HTTP and forwards it to Discord. To be in compliance with Discord Ratelimiting, a ratelimiting middleware is used to prevent spamming.
 
 MongoDB is being used in this project to store the ratelimit statuses. We cannot store this in memory in our hosted operation because it is hosted across several servers and load-balanced between them. 
 
@@ -25,7 +25,16 @@ You'll then need to set up your environment variables.
 ## Operation
 Once you've installed the proxy, you'll need to run it. To run it, we'd recommend using a process manager like [pm2](https://pm2.io/). 
 
+To use our predefined PM2 config, please simply execute
+```bash
+npm run pm2
+```
+
+This will recompile the Typescript and run it as a pm2 process.
+
 By default, the Express server connected to this system will run on port `7053`. We recommend running this behind a reverse proxy like NGINX. 
+
+When running, a landing page (powered by EJS) will be served at `http://localhost:7053/`.
 
 ## Secrets
 We store secrets in a `.env` file stored in the root directory of the project - you can't see this file because it's in our `.gitignore`.
@@ -33,11 +42,7 @@ We store secrets in a `.env` file stored in the root directory of the project - 
 Please see the format for this file below
 
 ```
-MONGO_STRING=
-MONGO_USER=
-MONGO_PASSWORD=
-MONGO_COLLECTION=
-MONGO_AUTH_SOURCE=
+MONGO_URI=
 ```
 
 ## License
