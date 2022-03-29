@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <script src="../js/fa.js" type="text/javascript"></script>
+    <title>Webhook Proxy | Hyra</title>
+</head>
+
+<body>
+    <nav class="lg:px-48 px-8 py-3 border-b flex border-b-gray-200 items-center">
+        <a class="font-semibold text-xl" href="/">Discord Webhook Proxy</a>
+    </nav>
+
+    <header class="text-center py-40 lg:px-48">
+        <h1 class="text-5xl font-bold mb-2">Discord Webhook Proxy</h1>
+        <p class="mb-4">An easy-to-use, ratelimit compliant Discord Webhook Proxy for Roblox</p>
+    </header>
+
+    <section class="bg-gray-50 text-center p-8 lg:px-48">
+        <div class="grid grid-cols-3">
+            <div>
+                <div class="text-2xl font-semibold"><%-length.toLocaleString()%></div>
+                <div>Unique Webhooks</div>
+            </div>
+
+            <div>
+                <div class="text-2xl font-semibold"><%-total.toLocaleString()%></div>
+                <div>Requests</div>
+            </div>
+
+            <div>
+                <div class="text-2xl font-semibold">100%</div>
+                <div>uptime</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="border-t border-gray-200">
+        <div class="lg:flex gap-8">
+            <div class="lg:w-7/12 py-8 px-8 lg:px-0 lg:ml-48">
+                <h2 class="text-4xl mb-4 font-bold">
+                    <span class="bg-lime-200 rounded-xl text-2xl p-2 text-lime-900 inline-block mr-2">
+                        <i class="fa-regular fa-dolly"></i>
+                    </span>
+
+                    <span class="align-middle">Easy-to-use</span>
+                </h2>
+
+                <p>The Hyra Webhook Proxy is designed to be easy to install, all you need to do is change the domain in
+                    the URL.</p>
+            </div>
+            <div class="flex-1 lg:pr-48 flex justify-center items-center bg-gray-50 p-4">
+                <div class="bg-white flex flex-col lg:flex-row rounded border border-gray-200 p-4 text-center">
+                    <div class="font-semibold"><span class="text-discord">discord.com</span>/webhooks</div>
+                    <div class="my-4 block lg:hidden"><i class="fa-regular fa-arrow-down"></i></div>
+                    <div class="mx-4 hidden lg:block"><i class="fa-regular fa-arrow-right"></i></div>
+                    <div class="font-semibold"><span class="text-teal-500">hooks.hyra.io</span>/webhooks</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="border-t border-gray-200">
+        <div class="lg:w-7/12 py-8 px-8 lg:px-48">
+            <h2 class="text-4xl mb-4 font-bold">
+                <span class="bg-amber-200 rounded-xl text-2xl p-2 text-amber-900 inline-block mr-2">
+                    <i class="fa-regular fa-rabbit-running"></i>
+                </span>
+
+                <span class="align-middle">Blazing fast</span>
+            </h2>
+
+            <p>Hosted in US-East region to provide optimum latency with Discord API. Traffic is accelerated from Roblox
+                to the proxy by using Argo Tunnel.</p>
+
+            <ul class="text-lg mt-4">
+                <li class="my-1"><i class="fa-regular fa-circle-check text-blue-600 mr-2"></i> Hosted in United States
+                </li>
+                <li class="my-1"><i class="fa-regular fa-circle-check text-blue-600 mr-2"></i> High Frequency Intel CPUs
+                </li>
+                <li class="my-1"><i class="fa-regular fa-circle-check text-blue-600 mr-2"></i> Direct peering with
+                    Cloudflare</li>
+                <li class="my-1"><i class="fa-regular fa-circle-check text-blue-600 mr-2"></i> Uses Argo to avoid
+                    internet congestion</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="border-t border-gray-200">
+        <div class="lg:w-7/12 py-8 px-8 lg:px-48">
+            <h2 class="text-4xl mb-4 font-bold">
+                <span class="bg-purple-200 rounded-xl text-2xl p-2 text-purple-900 inline-block mr-2">
+                    <i class="fa-regular fa-face-smile-halo"></i>
+                </span>
+
+                <span class="align-middle">Compliant</span>
+            </h2>
+
+            <p>Fully compliant with Discord Terms of Service, Hyra's proxy will automatically enforce the Discord rate
+                limits and reject requests that exceed it.</p>
+        </div>
+    </section>
+
+    <section class="text-center border-t border-gray-200 py-12 px-8 lg:px-48">
+        <h2 class="font-bold text-4xl mb-1">Get started</h2>
+        <p class="mb-8">Convert the URL to a proxy URL</p>
+
+        <div class="flex flex-col lg:flex-row gap-4 justify-center">
+            <input class="border-2 p-2 border-gray-400 rounded" id="input" type="text"
+                placeholder="Discord Webhook URL">
+
+            <a class="px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded text-white cursor-pointer" id="convert"><i
+                    class="fa-regular fa-arrows-rotate"></i> Convert</a>
+
+            <input class="border-2 p-2 border-gray-400 rounded" id="output" type="text" placeholder="Proxy URL">
+        </div>
+    </section>
+
+    <script>
+        document.querySelector("#convert").addEventListener("click", () => {
+            let input = document.querySelector("#input").value;
+            let output = document.querySelector("#output");
+
+            if (input.includes("discord.com")) {
+                output.value = input.replace("discord.com", "hooks.hyra.io");
+
+                // focus the output
+                output.focus();
+            } else {
+                output.value = "";
+            }
+        })
+    </script>
+</body>
+
+</html>
