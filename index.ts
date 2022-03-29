@@ -23,6 +23,7 @@ import { requests } from './models/requests';
 import bodyParser from 'body-parser';
 import { networkInterfaces } from 'os';
 import https from 'https';
+import { caches } from './models/cache';
 
 /*
     To allow us to send a larger volume of requests, we need to attach multiple IP
@@ -42,9 +43,9 @@ const nets = networkInterfaces();
 const addresses = [];
 
 // Discover the IP addresses
-for(const name of Object.keys(nets)) {
-    for(const net of nets[name]!) {
-        if(net.family === 'IPv4' && !net.internal) {
+for (const name of Object.keys(nets)) {
+    for (const net of nets[name]!) {
+        if (net.family === 'IPv4' && !net.internal) {
             addresses.push(net.address);
         }
     }
@@ -53,7 +54,7 @@ for(const name of Object.keys(nets)) {
 const axiosInstances: AxiosInstance[] = []
 
 // Create an axios instance for each IP address
-for(let address of addresses) {
+for (let address of addresses) {
     axiosInstances.push(axios.create({
         httpsAgent: new https.Agent({
             localAddress: address
@@ -65,10 +66,10 @@ for(let address of addresses) {
 }
 
 // Balance the load across the instances by taking it in turns
-let instance = 1;
+let instance = 0;
 
 const roundRobinInstance = (): AxiosInstance => {
-    if(instance === axiosInstances.length - 1) {
+    if (instance === axiosInstances.length - 1) {
         instance = 0;
         return axiosInstances[instance];
     } else {
@@ -119,7 +120,33 @@ const handleCounter = (req: express.Request) => {
     }, { upsert: true }).exec();
 }
 
-const handleResponse = async(req: express.Request, res: express.Response, result: any) => {
+const validateRequest = (req: express.Request, res: express.Response) => {
+    if (req.body) {
+        if (req.body.content && req.body.content.length === 0) {
+            res.status(400).send({
+                message: "Cannot send an empty message",
+                code: 50006
+            })
+            return false;
+        } else if (req.body.embeds && req.body.embeds.length === 0) {
+            res.status(400).send({
+                message: "Cannot send an empty message",
+                code: 50006
+            })
+            return false;
+        } else {
+            return true;
+        }
+    } else {
+        res.status(400).send({
+            _misc: "Expected \"Content-Type\" header to be one of {'application/json', 'application/x-www-form-urlencoded', 'multipart/form-data'}."
+        })
+
+        return false;
+    }
+}
+
+const handleResponse = async (req: express.Request, res: express.Response, result: any) => {
     const log = await requests.create({
         webhook_id: req.params.id,
         status: result.status,
@@ -152,63 +179,102 @@ app.get("/", (req, res) => {
 })
 
 app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
-    handleCounter(req);
-    roundRobinInstance().get(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`).then(result => {
-        handleResponse(req, res, result);
-    }).catch(err => {
-        res.status(err.response.status);
-        handleResponse(req, res, err.response);
+    caches.findById(req.params.id).then(result => {
+        if (result) {
+            res.status(result.response_code).send({
+                message: result.message
+            })
+        } else {
+            handleCounter(req);
+            roundRobinInstance().get(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`).then(result => {
+                handleResponse(req, res, result);
+            }).catch(err => {
+                if (err.response.status === 404) {
+                    caches.findByIdAndUpdate(req.params.id, {
+                        message: err.response.data.message,
+                        response_code: err.response.status
+                    }, { upsert: true }).exec();
+                }
+                res.status(err.response.status);
+                handleResponse(req, res, err.response);
+            })
+        }
     })
 })
 
 app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
-    handleCounter(req);
-    roundRobinInstance().post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`, req.body).then(result => {
-        handleResponse(req, res, result);
-    }).catch(err => {
-        res.status(err.response.status);
-        handleResponse(req, res, err.response);
+    caches.findById(req.params.id).then(result => {
+        if (result) {
+            res.status(result.response_code).send({
+                message: result.message
+            })
+        } else if (validateRequest(req, res)) {
+            handleCounter(req);
+            roundRobinInstance().post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`, req.body).then(result => {
+                handleResponse(req, res, result);
+            }).catch(err => {
+                if (err.response.status === 404) {
+                    caches.findByIdAndUpdate(req.params.id, {
+                        message: err.response.data.message,
+                        response_code: err.response.status
+                    }, { upsert: true }).exec();
+                }
+                res.status(err.response.status);
+                handleResponse(req, res, err.response);
+            })
+        }
     })
 })
 
 app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) => {
-    handleCounter(req);
-    roundRobinInstance().patch(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`, req.body).then(result => {
-        handleResponse(req, res, result);
-    }).catch(err => {
-        res.status(err.response.status);
-        handleResponse(req, res, err.response);
+    caches.findById(req.params.id).then(result => {
+        if (result) {
+            res.status(result.response_code).send({
+                message: result.message
+            })
+        } else if (validateRequest(req, res)) {
+            handleCounter(req);
+            roundRobinInstance().patch(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`, req.body).then(result => {
+                handleResponse(req, res, result);
+            }).catch(err => {
+                if (err.response.status === 404) {
+                    caches.findByIdAndUpdate(req.params.id, {
+                        message: err.response.data.message,
+                        response_code: err.response.status
+                    }, { upsert: true }).exec();
+                }
+                res.status(err.response.status);
+                handleResponse(req, res, err.response);
+            })
+        }
     })
 })
 
 app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) => {
-    handleCounter(req);
-    roundRobinInstance().delete(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`).then(result => {
-        handleResponse(req, res, result);
-    }).catch(err => {
-        res.status(err.response.status);
-        handleResponse(req, res, err.response);
+    caches.findById(req.params.id).then(result => {
+        if (result) {
+            res.status(result.response_code).send({
+                message: result.message
+            })
+        } else {
+            if (validateRequest(req, res)) {
+                handleCounter(req);
+                roundRobinInstance().delete(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`).then(result => {
+                    handleResponse(req, res, result);
+                }).catch(err => {
+                    if (err.response.status === 404) {
+                        caches.findByIdAndUpdate(req.params.id, {
+                            message: err.response.data.message,
+                            response_code: err.response.status
+                        }, { upsert: true }).exec();
+                    }
+                    res.status(err.response.status);
+                    handleResponse(req, res, err.response);
+                })
+            }
+        }
     })
-})
 
-app.post("/api/webhooks/:id/:token/slack", limiter, (req, res) => {
-    handleCounter(req);
-    roundRobinInstance().post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/slack`, req.body).then(result => {
-        handleResponse(req, res, result);
-    }).catch(err => {
-        res.status(err.response.status);
-        handleResponse(req, res, err.response);
-    })
-})
-
-app.post("/api/webhooks/:id/:token/github", limiter, (req, res) => {
-    handleCounter(req);
-    roundRobinInstance().post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/github`, req.body).then(result => {
-        handleResponse(req, res, result);
-    }).catch(err => {
-        res.status(err.response.status);
-        handleResponse(req, res, err.response);
-    })
 })
 
 mongoose.connect(process.env.MONGO_URI as string).then(() => {
