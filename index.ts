@@ -21,6 +21,7 @@ import mongoose from 'mongoose';
 import { webhooks } from './models/webhooks';
 import { requests } from './models/requests';
 import bodyParser from 'body-parser';
+import { monitoring } from './routes/monitor';
 import { networkInterfaces } from 'os';
 import https from 'https';
 import { caches } from './models/cache';
@@ -173,6 +174,10 @@ const handleResponse = async (req: express.Request, res: express.Response, resul
 
     res.setHeader("X-Request-ID", log._id);
     res.send(result.data);
+}
+
+if(process.env.MONITOR_SECRET) {
+    app.use("/monitor", monitoring);
 }
 
 app.get("/", (req, res) => {
