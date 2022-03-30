@@ -36,6 +36,9 @@ By default, the Express server connected to this system will run on port `7053`.
 
 When running, a landing page (powered by EJS) will be served at `http://localhost:7053/`.
 
+## Monitoring
+This comes bundled with a monitoring system to allow you to monitor requests sent to your API. All you have to do is include your own `MONITOR_SECRET` in the .env file.
+
 ## Secrets
 We store secrets in a `.env` file stored in the root directory of the project - you can't see this file because it's in our `.gitignore`.
 
@@ -43,6 +46,7 @@ Please see the format for this file below
 
 ```
 MONGO_URI=
+MONITOR_SECRET=
 ```
 
 ## License
