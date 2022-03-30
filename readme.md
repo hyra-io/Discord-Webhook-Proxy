@@ -41,6 +41,7 @@ This comes bundled with a set of monitoring endpoits to allow you to monitor req
 
 These endpoints are available under `/monitor` and require the `Authorization` header on requests to be set to the value of your `MONITOR_SECRET` environment variable. 
 
+=======
 ## Secrets
 We store secrets in a `.env` file stored in the root directory of the project - you can't see this file because it's in our `.gitignore`.
 
@@ -49,6 +50,7 @@ Please see the format for this file below
 ```
 MONGO_URI=
 MONITOR_SECRET=
+=======
 ```
 
 ## License
