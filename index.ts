@@ -129,7 +129,7 @@ const validateRequest = (req: express.Request, res: express.Response) => {
                 code: 50006
             })
             return false;
-        } if(req.body.content !== undefined && req.body.content.length > 2000) {
+        } if (req.body.content !== undefined && req.body.content.length > 2000) {
             res.status(400).send({
                 message: "Content must be 2000 or fewer in length."
             })
@@ -140,7 +140,7 @@ const validateRequest = (req: express.Request, res: express.Response) => {
                 code: 50006
             })
             return false;
-        } else if(!req.body.content && !req.body.embeds) {
+        } else if (!req.body.content && !req.body.embeds) {
             res.status(400).send({
                 message: "Cannot send an empty message",
                 code: 50006
@@ -176,21 +176,30 @@ const handleResponse = async (req: express.Request, res: express.Response, resul
     res.send(result.data);
 }
 
-if(process.env.MONITOR_SECRET) {
+if (process.env.MONITOR_SECRET) {
     app.use("/monitor", monitoring);
 }
 
-app.get("/", (req, res) => {
-    webhooks.find({}).then(result => {
-        let total = 0;
-        result.forEach(element => {
-            total += element.count;
-        });
-
+app.get("/", async (req, res) => {
+    const count = await webhooks.countDocuments();
+    webhooks.aggregate([
+        {
+            $group: {
+                _id: null,
+                count: { $sum: "$count" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                count: 1
+            }
+        }
+    ]).then(result => {
         res.render("pages/index", {
-            length: result.length,
-            total: total
-        });
+            total: result[0].count,
+            length: count
+        })
     })
 })
 
