@@ -2,13 +2,17 @@ import express from 'express';
 import { requests } from '../models/requests';
 const app = express.Router();
 
-const allowAllCors = (req: express.Request, res: express.Response, next: any) => {
+app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    next();
-}
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    if(req.headers.authorization === process.env.MONITOR_SECRET || req.method !== 'GET') {
+        next();
+    } else {
+        res.status(401).send("Unauthorized");
+    }
+})
 
-app.get("/hour", allowAllCors, async (req, res) => {
+app.get("/hour", async (req, res) => {
     const total = await requests.aggregate([
         {
             $match: {
@@ -66,7 +70,7 @@ app.get("/hour", allowAllCors, async (req, res) => {
     })
 })
 
-app.get("/rps", (allowAllCors), (req, res) => {
+app.get("/rps", (req, res) => {
     // count all requests from last minute
     requests.aggregate([
         {
@@ -97,7 +101,7 @@ app.get("/rps", (allowAllCors), (req, res) => {
     })
 })
 
-app.get("/failure", allowAllCors, (req, res) => {
+app.get("/failure", (req, res) => {
     requests.aggregate([
         {
             $match: {
