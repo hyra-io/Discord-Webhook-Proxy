@@ -49,7 +49,6 @@ Please see the format for this file below
 ```
 MONGO_URI=
 MONITOR_SECRET=
-=======
 ```
 
 ## License
