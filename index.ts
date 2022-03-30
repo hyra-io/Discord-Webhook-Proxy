@@ -87,7 +87,9 @@ const handleResponse = async(req: express.Request, res: express.Response, result
     res.send(result.data);
 }
 
-app.use("/monitor", monitoring);
+if(process.env.MONITOR_SECRET) {
+    app.use("/monitor", monitoring);
+}
 
 app.get("/", (req, res) => {
     webhooks.find({}).then(result => {
