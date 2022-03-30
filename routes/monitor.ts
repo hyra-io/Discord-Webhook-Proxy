@@ -13,7 +13,7 @@ app.get("/hour", allowAllCors, async (req, res) => {
         {
             $match: {
                 createdAt: {
-                    $gte: new Date(Date.now() - 3600000)
+                    $gte: new Date(Date.now() - 60000)
                 }
             }
         },
@@ -40,7 +40,7 @@ app.get("/hour", allowAllCors, async (req, res) => {
                     $lt: 300
                 },
                 createdAt: {
-                    $gte: new Date(Date.now() - 3600000)
+                    $gte: new Date(Date.now() - 60000)
                 }
             }
         },
@@ -61,8 +61,39 @@ app.get("/hour", allowAllCors, async (req, res) => {
     ])
 
     res.send({
-        total: total[0].count,
-        successful: successful[0].count
+        total: total.length ? total[0].count : 0,
+        successful: successful.length ? successful[0].count : 0
+    })
+})
+
+app.get("/rps", (allowAllCors), (req, res) => {
+    // count all requests from last minute
+    requests.aggregate([
+        {
+            $match: {
+                createdAt: {
+                    $gte: new Date(Date.now() - 60000)
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                count: {
+                    $sum: 1
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                count: 1
+            }
+        },
+    ]).then(result => {
+        res.send({
+            rps: result.length ? result[0].count / 60 : 0
+        })
     })
 })
 
@@ -73,6 +104,9 @@ app.get("/failure", allowAllCors, (req, res) => {
                 status: {
                     $gte: 400,
                     $lt: 500
+                },
+                createdAt: {
+                    $gte: new Date(Date.now() - 60000)
                 }
             }
         },
