@@ -37,7 +37,9 @@ By default, the Express server connected to this system will run on port `7053`.
 When running, a landing page (powered by EJS) will be served at `http://localhost:7053/`.
 
 ## Monitoring
-This comes bundled with a monitoring system to allow you to monitor requests sent to your API. All you have to do is include your own `MONITOR_SECRET` in the .env file.
+This comes bundled with a set of monitoring endpoits to allow you to monitor requests sent to your API. To enable these monitoring endpoints, you should generate a random string to be used as a passphrase and include it as the `MONITOR_SECRET` in your environment variables. 
+
+These endpoints are available under `/monitor` and require the `Authorization` header on requests to be set to the value of your `MONITOR_SECRET` environment variable. 
 
 ## Secrets
 We store secrets in a `.env` file stored in the root directory of the project - you can't see this file because it's in our `.gitignore`.
