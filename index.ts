@@ -69,13 +69,13 @@ for (let address of addresses) {
 // Balance the load across the instances by taking it in turns
 let instance = 0;
 
-const roundRobinInstance = (): AxiosInstance => {
+const roundRobinInstance = (): { instance: AxiosInstance, id: number } => {
     if (instance === axiosInstances.length - 1) {
         instance = 0;
-        return axiosInstances[instance];
+        return { instance: axiosInstances[instance], id: instance + 1 };
     } else {
         instance++;
-        return axiosInstances[instance - 1];
+        return { instance: axiosInstances[instance - 1], id: instance };
     }
 }
 
@@ -88,6 +88,11 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
+
+app.use((req, res, next) => {
+    res.header("X-Powered-By", "HyraWebhookProxy/2.0");
+    next();
+})
 
 const windowMs = 1 * 60 * 1000;
 const maxPerWindow = 30;
@@ -211,7 +216,10 @@ app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
             })
         } else {
             handleCounter(req);
-            roundRobinInstance().get(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`).then(result => {
+            const { instance, id } = roundRobinInstance();
+
+            res.setHeader("X-Hyra-Machine-ID", process.env.REGION_PREFIX || "NRP" + "_" + id)
+            instance.get(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`).then(result => {
                 handleResponse(req, res, result);
             }).catch(err => {
                 if (err.response.status === 404) {
@@ -235,7 +243,10 @@ app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
             })
         } else if (validateRequest(req, res)) {
             handleCounter(req);
-            roundRobinInstance().post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`, req.body).then(result => {
+            const { instance, id } = roundRobinInstance();
+
+            res.setHeader("X-Hyra-Machine-ID", process.env.REGION_PREFIX || "NRP" + "_" + id)
+            instance.post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`, req.body).then(result => {
                 handleResponse(req, res, result);
             }).catch(err => {
                 if (err.response.status === 404) {
@@ -259,7 +270,10 @@ app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =>
             })
         } else if (validateRequest(req, res)) {
             handleCounter(req);
-            roundRobinInstance().patch(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`, req.body).then(result => {
+            const { instance, id } = roundRobinInstance();
+
+            res.setHeader("X-Hyra-Machine-ID", process.env.REGION_PREFIX || "NRP" + "_" + id)
+            instance.patch(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`, req.body).then(result => {
                 handleResponse(req, res, result);
             }).catch(err => {
                 if (err.response.status === 404) {
@@ -284,7 +298,10 @@ app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =
         } else {
             if (validateRequest(req, res)) {
                 handleCounter(req);
-                roundRobinInstance().delete(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`).then(result => {
+                const { instance, id } = roundRobinInstance();
+
+                res.setHeader("X-Hyra-Machine-ID", process.env.REGION_PREFIX || "NRP" + "_" + id)
+                instance.delete(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`).then(result => {
                     handleResponse(req, res, result);
                 }).catch(err => {
                     if (err.response.status === 404) {
