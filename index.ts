@@ -22,7 +22,7 @@ import { webhooks } from './models/webhooks';
 import { requests } from './models/requests';
 import bodyParser from 'body-parser';
 import { monitoring } from './routes/monitor';
-import { networkInterfaces } from 'os';
+import { networkInterfaces, hostname } from 'os';
 import https from 'https';
 import { caches } from './models/cache';
 
@@ -218,7 +218,7 @@ app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
             handleCounter(req);
             const { instance, id } = roundRobinInstance();
 
-            res.setHeader("X-Hyra-Machine-ID", process.env.REGION_PREFIX || "NRP" + "-" + id)
+            res.setHeader("X-Hyra-Machine-ID", hostname + "-" + id)
             instance.get(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`).then(result => {
                 handleResponse(req, res, result);
             }).catch(err => {
@@ -245,7 +245,7 @@ app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
             handleCounter(req);
             const { instance, id } = roundRobinInstance();
 
-            res.setHeader("X-Hyra-Machine-ID", process.env.REGION_PREFIX || "NRP" + "-" + id)
+            res.setHeader("X-Hyra-Machine-ID", hostname + "-" + id)
             instance.post(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}`, req.body).then(result => {
                 handleResponse(req, res, result);
             }).catch(err => {
@@ -272,7 +272,7 @@ app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =>
             handleCounter(req);
             const { instance, id } = roundRobinInstance();
 
-            res.setHeader("X-Hyra-Machine-ID", process.env.REGION_PREFIX || "NRP" + "-" + id)
+            res.setHeader("X-Hyra-Machine-ID", hostname + "-" + id)
             instance.patch(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`, req.body).then(result => {
                 handleResponse(req, res, result);
             }).catch(err => {
@@ -300,7 +300,7 @@ app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =
                 handleCounter(req);
                 const { instance, id } = roundRobinInstance();
 
-                res.setHeader("X-Hyra-Machine-ID", process.env.REGION_PREFIX || "NRP" + "-" + id)
+                res.setHeader("X-Hyra-Machine-ID", hostname + "-" + id)
                 instance.delete(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`).then(result => {
                     handleResponse(req, res, result);
                 }).catch(err => {
