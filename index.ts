@@ -209,8 +209,6 @@ app.get("/", async (req, res) => {
         }
     }) : undefined;
 
-    console.log(uptime);
-
     res.render("pages/index", {
         total: requests[0].count,
         length: count,
