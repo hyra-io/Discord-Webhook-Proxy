@@ -187,7 +187,7 @@ if (process.env.MONITOR_SECRET) {
 
 app.get("/", async (req, res) => {
     const count = await webhooks.countDocuments();
-    webhooks.aggregate([
+    const requests = await webhooks.aggregate([
         {
             $group: {
                 _id: null,
@@ -200,11 +200,21 @@ app.get("/", async (req, res) => {
                 count: 1
             }
         }
-    ]).then(result => {
-        res.render("pages/index", {
-            total: result[0].count,
-            length: count
-        })
+    ])
+
+    // Update the SLA Handler (Hyra only - ignore this code)
+    const uptime = process.env.UPTIME_BEARER ? await axios.get(process.env.UPTIME_STATS_URL as string, {
+        headers: {
+            Authorization: 'Bearer ' + process.env.UPTIME_BEARER
+        }
+    }) : undefined;
+
+    console.log(uptime);
+
+    res.render("pages/index", {
+        total: requests[0].count,
+        length: count,
+        uptime: (uptime?.data.data.attributes.availability as number)?.toFixed(2) || 100
     })
 })
 
