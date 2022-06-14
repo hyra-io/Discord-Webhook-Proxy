@@ -188,25 +188,26 @@ if (process.env.MONITOR_SECRET) {
 let uptimeMemCache = 100;
 
 app.get("/", async (req, res) => {
-    const count = await webhooks.countDocuments();
     const requests = await webhooks.aggregate([
         {
             $group: {
                 _id: null,
-                count: { $sum: "$count" }
+                count: { $sum: "$count" },
+                total: { $sum: 1 }
             }
         },
         {
             $project: {
                 _id: 0,
-                count: 1
+                count: 1,
+                total: 1
             }
         }
     ])
 
     res.render("pages/index", {
         total: requests[0].count,
-        length: count,
+        length: requests[0].total,
         uptime: uptimeMemCache.toFixed(2) || 1000
     })
 })
