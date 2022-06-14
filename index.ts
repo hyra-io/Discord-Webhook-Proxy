@@ -84,7 +84,9 @@ const roundRobinInstance = (): { instance: AxiosInstance, id: number } => {
 const app = express();
 
 app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: 3600000
+}))
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
