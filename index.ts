@@ -185,6 +185,8 @@ if (process.env.MONITOR_SECRET) {
     app.use("/monitor", monitoring);
 }
 
+let uptimeMemCache = 100;
+
 app.get("/", async (req, res) => {
     const count = await webhooks.countDocuments();
     const requests = await webhooks.aggregate([
@@ -202,19 +204,28 @@ app.get("/", async (req, res) => {
         }
     ])
 
-    // Update the SLA Handler (Hyra only - ignore this code)
-    const uptime = process.env.UPTIME_BEARER ? await axios.get(process.env.UPTIME_STATS_URL as string, {
-        headers: {
-            Authorization: 'Bearer ' + process.env.UPTIME_BEARER
-        }
-    }) : undefined;
-
     res.render("pages/index", {
         total: requests[0].count,
         length: count,
-        uptime: (uptime?.data.data.attributes.availability as number)?.toFixed(2) || 100
+        uptime: uptimeMemCache.toFixed(2) || 1000
     })
 })
+
+if (process.env.UPTIME_BEARER) {
+    async function updateUptime() {
+        uptimeMemCache = process.env.UPTIME_BEARER ? (await axios.get(process.env.UPTIME_STATS_URL as string, {
+            headers: {
+                Authorization: 'Bearer ' + process.env.UPTIME_BEARER
+            }
+        })).data.data.attributes.availability : 100;
+    }
+
+    setInterval(() => {
+        updateUptime();
+    }, 60 * 60 * 1000)
+
+    updateUptime();
+}
 
 app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
