@@ -88,8 +88,8 @@ app.use(express.static(path.join(__dirname, 'public'), {
     maxAge: 3600000
 }))
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.json({ limit: '8mb' }));
+app.use(bodyParser.urlencoded({ limit: '8mb' }));
 
 app.use((req, res, next) => {
     res.header("X-Powered-By", "HyraWebhookProxy/2.0");
