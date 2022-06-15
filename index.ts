@@ -249,6 +249,7 @@ app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
                         message: err.response.data.message,
                         response_code: err.response.status
                     }, { upsert: true }).exec();
+                    res.setHeader("cache-control", "public, max-age=0, must-revalidate");
                 }
                 res.status(err.response.status);
                 handleResponse(req, res, err.response);
@@ -276,6 +277,7 @@ app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
                         message: err.response.data.message,
                         response_code: err.response.status
                     }, { upsert: true }).exec();
+                    res.setHeader("cache-control", "public, max-age=0, must-revalidate");
                 }
                 res.status(err.response.status);
                 handleResponse(req, res, err.response);
@@ -303,6 +305,7 @@ app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =>
                         message: err.response.data.message,
                         response_code: err.response.status
                     }, { upsert: true }).exec();
+                    res.setHeader("cache-control", "public, max-age=0, must-revalidate");
                 }
                 res.status(err.response.status);
                 handleResponse(req, res, err.response);
@@ -331,6 +334,7 @@ app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =
                             message: err.response.data.message,
                             response_code: err.response.status
                         }, { upsert: true }).exec();
+                        res.setHeader("cache-control", "public, max-age=0, must-revalidate");
                     }
                     res.status(err.response.status);
                     handleResponse(req, res, err.response);
