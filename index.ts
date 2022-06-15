@@ -233,7 +233,7 @@ if (process.env.UPTIME_BEARER) {
 app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
         if (result) {
-            res.setHeader("cache-control", "public, max-age=0, must-revalidate");
+            res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
             res.status(result.response_code).send({
                 message: result.message
             })
@@ -250,7 +250,7 @@ app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
                         message: err.response.data.message,
                         response_code: err.response.status
                     }, { upsert: true }).exec();
-                    res.setHeader("cache-control", "public, max-age=0, must-revalidate");
+                    res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
                 }
                 res.status(err.response.status);
                 handleResponse(req, res, err.response);
@@ -262,7 +262,7 @@ app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
 app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
         if (result) {
-            res.setHeader("cache-control", "public, max-age=0, must-revalidate");
+            res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
             res.status(result.response_code).send({
                 message: result.message
             })
@@ -279,7 +279,7 @@ app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
                         message: err.response.data.message,
                         response_code: err.response.status
                     }, { upsert: true }).exec();
-                    res.setHeader("cache-control", "public, max-age=0, must-revalidate");
+                    res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
                 }
                 res.status(err.response.status);
                 handleResponse(req, res, err.response);
@@ -291,7 +291,7 @@ app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
 app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
         if (result) {
-            res.setHeader("cache-control", "public, max-age=0, must-revalidate");
+            res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
             res.status(result.response_code).send({
                 message: result.message
             })
@@ -308,7 +308,7 @@ app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =>
                         message: err.response.data.message,
                         response_code: err.response.status
                     }, { upsert: true }).exec();
-                    res.setHeader("cache-control", "public, max-age=0, must-revalidate");
+                    res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
                 }
                 res.status(err.response.status);
                 handleResponse(req, res, err.response);
@@ -320,7 +320,7 @@ app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =>
 app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
         if (result) {
-            res.setHeader("cache-control", "public, max-age=0, must-revalidate");
+            res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
             res.status(result.response_code).send({
                 message: result.message
             })
@@ -338,7 +338,7 @@ app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =
                             message: err.response.data.message,
                             response_code: err.response.status
                         }, { upsert: true }).exec();
-                        res.setHeader("cache-control", "public, max-age=0, must-revalidate");
+                        res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
                     }
                     res.status(err.response.status);
                     handleResponse(req, res, err.response);
