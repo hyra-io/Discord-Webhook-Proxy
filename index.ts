@@ -233,6 +233,7 @@ if (process.env.UPTIME_BEARER) {
 app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
         if (result) {
+            res.setHeader("cache-control", "public, max-age=0, must-revalidate");
             res.status(result.response_code).send({
                 message: result.message
             })
@@ -261,6 +262,7 @@ app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
 app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
         if (result) {
+            res.setHeader("cache-control", "public, max-age=0, must-revalidate");
             res.status(result.response_code).send({
                 message: result.message
             })
@@ -289,6 +291,7 @@ app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
 app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
         if (result) {
+            res.setHeader("cache-control", "public, max-age=0, must-revalidate");
             res.status(result.response_code).send({
                 message: result.message
             })
@@ -317,6 +320,7 @@ app.patch("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =>
 app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
         if (result) {
+            res.setHeader("cache-control", "public, max-age=0, must-revalidate");
             res.status(result.response_code).send({
                 message: result.message
             })
