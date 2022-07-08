@@ -130,7 +130,7 @@ const handleCounter = (req: express.Request) => {
 
 const validateRequest = (req: express.Request, res: express.Response) => {
     if (req.body) {
-        if (req.body.content !== undefined && req.body.content.length === 0) {
+        if (req.body.content !== undefined && req.body.content.length === 0 && (req.body.embeds === undefined || req.body.embeds.length === 0)) {
             res.status(400).send({
                 message: "Cannot send an empty message",
                 code: 50006
@@ -147,6 +147,31 @@ const validateRequest = (req: express.Request, res: express.Response) => {
                 code: 50006
             })
             return false;
+        } else if(req.body.embeds !== undefined && req.body.embeds.length) {
+            // validate the embed fields
+            for (let embed of req.body.embeds) {
+                for(let field of embed.fields) {
+                    if(!field.name || field.value === undefined) {
+                        res.status(400).send({
+                            message: "Embed fields must have a name and value",
+                            code: 50007
+                        })
+                        return false;
+                    }
+                    if(field.name.length > 256) {
+                        res.status(400).send({
+                            message: "Embed field names must be 256 or fewer in length."
+                        })
+                        return false;
+                    }
+                    if(field.value.length > 1024) {
+                        res.status(400).send({
+                            message: "Embed field values must be 1024 or fewer in length."
+                        })
+                        return false;
+                    }
+                }
+            }
         } else if (!req.body.content && !req.body.embeds) {
             res.status(400).send({
                 message: "Cannot send an empty message",
@@ -178,6 +203,14 @@ const handleResponse = async (req: express.Request, res: express.Response, resul
             request_body: req.body
         }
     })
+
+    if (result.status === 429) {
+        caches.findByIdAndUpdate({
+            _id: req.params.id,
+            message: "Ratelimit Exceeded - Your webhook has been suspended",
+            response_code: 429,
+        }, { upsert: true }).exec();
+    }
 
     res.setHeader("X-Request-ID", log._id);
     res.send(result.data);
@@ -281,6 +314,7 @@ app.post("/api/webhooks/:id/:token", limiter, (req, res) => {
                     }, { upsert: true }).exec();
                     res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
                 }
+
                 res.status(err.response.status);
                 handleResponse(req, res, err.response);
             })
@@ -325,25 +359,23 @@ app.delete("/api/webhooks/:id/:token/messages/:messageId", limiter, (req, res) =
                 message: result.message
             })
         } else {
-            if (validateRequest(req, res)) {
-                handleCounter(req);
-                const { instance, id } = roundRobinInstance();
+            handleCounter(req);
+            const { instance, id } = roundRobinInstance();
 
-                res.setHeader("X-Hyra-Machine-ID", hostname + "-" + id)
-                instance.delete(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`).then(result => {
-                    handleResponse(req, res, result);
-                }).catch(err => {
-                    if (err.response.status === 404) {
-                        caches.findByIdAndUpdate(req.params.id, {
-                            message: err.response.data.message,
-                            response_code: err.response.status
-                        }, { upsert: true }).exec();
-                        res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
-                    }
-                    res.status(err.response.status);
-                    handleResponse(req, res, err.response);
-                })
-            }
+            res.setHeader("X-Hyra-Machine-ID", hostname + "-" + id)
+            instance.delete(`https://discord.com/api/webhooks/${req.params.id}/${req.params.token}/messages/${req.params.messageId}`).then(result => {
+                handleResponse(req, res, result);
+            }).catch(err => {
+                if (err.response.status === 404) {
+                    caches.findByIdAndUpdate(req.params.id, {
+                        message: err.response.data.message,
+                        response_code: err.response.status
+                    }, { upsert: true }).exec();
+                    res.setHeader("cache-control", "public, max-age=3600, must-revalidate");
+                }
+                res.status(err.response.status);
+                handleResponse(req, res, err.response);
+            })
         }
     })
 
