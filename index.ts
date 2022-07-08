@@ -141,7 +141,7 @@ const validateRequest = (req: express.Request, res: express.Response) => {
                 message: "Content must be 2000 or fewer in length."
             })
             return false;
-        } else if (req.body.embeds !== undefined && typeof(req.body.embeds) !== "object") {
+        } else if (req.body.embeds !== undefined && !Array.isArray(req.body.embeds)) {
             res.status(400).send({
                 message: "Embeds must be a valid array of objects",
                 code: 50006
@@ -188,7 +188,7 @@ const validateRequest = (req: express.Request, res: express.Response) => {
             }
 
             return true;
-        } else if(!req.body.embeds && (req.body.content as string).trim() === "") {
+        } else if(!req.body.embeds && typeof(req.body.content) === 'string' && (req.body.content as string).trim() === "") {
             res.status(400).send({
                 message: "Cannot send an empty message",
                 code: 50006
