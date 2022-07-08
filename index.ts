@@ -172,6 +172,8 @@ const validateRequest = (req: express.Request, res: express.Response) => {
                     }
                 }
             }
+
+            return true;
         } else if (!req.body.content && !req.body.embeds) {
             res.status(400).send({
                 message: "Cannot send an empty message",
