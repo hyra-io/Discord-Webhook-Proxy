@@ -226,12 +226,12 @@ const handleResponse = async (req: express.Request, res: express.Response, resul
         }
     })
 
-    if (result.status === 429) {
-        caches.findByIdAndUpdate(req.params.id, {
-            message: "Ratelimit Exceeded - Your webhook has been suspended",
-            response_code: 429,
-        }, { upsert: true }).exec();
-    }
+    // if (result.status === 429) {
+    //     caches.findByIdAndUpdate(req.params.id, {
+    //         message: "Ratelimit Exceeded - Your webhook has been suspended",
+    //         response_code: 429,
+    //     }, { upsert: true }).exec();
+    // }
 
     res.setHeader("X-Request-ID", log._id);
     res.send(result.data);
