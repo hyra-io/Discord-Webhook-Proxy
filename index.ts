@@ -120,6 +120,29 @@ const limiter = rateLimit({
     }
 });
 
+const globalLimiter = rateLimit({
+    store: new MongoStore({
+        uri: process.env.MONGO_URI as string,
+        collectionName: 'ratelimits_global',
+        expireTimeMs: 60 * 60 * 1000,
+    }),
+    windowMs: 60 * 60 * 1000,
+    max: 1000,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+        res.status(429).send({
+            message: "You are being rate limited",
+            retry_after: req.rateLimit.resetTime.getTime() - new Date().getTime()
+        })
+    },
+    keyGenerator: (req) => {
+        return req.headers['roblox-id'] as string || req.headers['x-forwarded-for'] as string || req.ip;
+    }
+});
+
+app.use("/api/webhooks/:id/:token", globalLimiter);
+
 const handleCounter = (req: express.Request) => {
     webhooks.findByIdAndUpdate(req.params.id, {
         $inc: {
