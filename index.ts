@@ -243,6 +243,10 @@ if (process.env.MONITOR_SECRET) {
 
 let uptimeMemCache = 100;
 
+requests.deleteMany({}).then(() => {
+    console.log("🗑️ Cleared Requests")
+})
+
 app.get("/", async (req, res) => {
     const requests = await webhooks.aggregate([
         {
@@ -267,22 +271,6 @@ app.get("/", async (req, res) => {
         uptime: uptimeMemCache.toFixed(2) || 1000
     })
 })
-
-if (process.env.UPTIME_BEARER) {
-    async function updateUptime() {
-        uptimeMemCache = process.env.UPTIME_BEARER ? (await axios.get(process.env.UPTIME_STATS_URL as string, {
-            headers: {
-                Authorization: 'Bearer ' + process.env.UPTIME_BEARER
-            }
-        })).data.data.attributes.availability : 100;
-    }
-
-    setInterval(() => {
-        updateUptime();
-    }, 60 * 60 * 1000)
-
-    updateUptime();
-}
 
 app.get("/api/webhooks/:id/:token", limiter, (req, res) => {
     caches.findById(req.params.id).then(result => {
